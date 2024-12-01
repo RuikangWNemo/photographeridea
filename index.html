@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>摄影师灵感工具</title>
+    <!-- CSS 部分 -->
+    <style>
+        /* ========== 全局样式 ========== */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            overflow-x: hidden;
+            height: 100%;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        /* 动态背景动画 */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 默认背景 */
+        body {
+            background: linear-gradient(-45deg, #a1c4fd, #c2e9fb, #a1c4fd, #c2e9fb);
+        }
+
+        /* 按钮样式 */
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 1em;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.5s;
+            margin: 5px;
+        }
+
+        .btn-blue {
+            background: linear-gradient(45deg, #36d1dc, #5b86e5);
+        }
+
+        .btn-blue:hover {
+            background: linear-gradient(45deg, #5b86e5, #36d1dc);
+        }
+
+        .btn-green {
+            background: linear-gradient(45deg, #11998e, #38ef7d);
+        }
+
+        .btn-green:hover {
+            background: linear-gradient(45deg, #38ef7d, #11998e);
+        }
+
+        /* 其他样式 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        #location-name {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+
+        .location-controls {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        #location-input {
+            padding: 5px;
+            font-size: 1em;
+            width: 200px;
+        }
+
+        #map {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        /* 天气信息模块 */
+        .weather-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px;
+            flex: 1 1 500px;
+            position: relative;
+            overflow: hidden;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .weather-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .weather-card h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+
+        .weather-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .temp {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .details {
+            font-size: 1em;
+            margin-top: 10px;
+        }
+
+        /* 日出日落模块内部布局 */
+        .sun-content {
+            display: flex;
+        }
+
+        #sunrise-sunset {
+            flex: 1;
+        }
+
+        #sun-map {
+            flex: 1;
+            margin-left: 20px;
+            height: 200px;
+        }
+
+        /* 小时天气预报 */
+        .hourly-forecast {
+            margin-bottom: 40px;
+        }
+
+        .hourly-forecast h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .hourly-cards {
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .hourly-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 5px;
+            border-radius: 10px;
+            min-width: 80px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .hourly-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .hourly-card h3 {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        .hourly-card .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* 未来7天天气预报 */
+        .daily-forecast {
+            margin-bottom: 40px;
+        }
+
+        .daily-forecast h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .daily-cards {
+            display: flex;
+            overflow-x: auto;
+        }
+
+        .daily-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 5px;
+            border-radius: 10px;
+            min-width: 100px;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .daily-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .daily-card h3 {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        .daily-card .icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        /* 灵感生成模块 */
+        .inspiration {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .category-select {
+            margin-bottom: 20px;
+        }
+
+        .category-select select {
+            padding: 10px;
+            font-size: 1em;
+            border: none;
+            border-radius: 20px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #ff512f, #dd2476);
+            border: none;
+            padding: 15px 30px;
+            color: #fff;
+            font-size: 1.5em;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.5s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(45deg, #dd2476, #ff512f);
+        }
+
+        .dice {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            animation: rotateDice 1s forwards;
+            display: none;
+            z-index: 9999;
+        }
+
+        @keyframes rotateDice {
+            0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) rotate(360deg) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) rotate(720deg) scale(1); }
+        }
+
+        .inspiration-text {
+            margin-top: 30px;
+            font-size: 1.5em;
+            min-height: 50px;
+            position: relative;
+        }
+
+        .inspiration-text textarea {
+            width: 80%;
+            max-width: 800px;
+            height: 100px;
+            font-size: 1em;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            resize: none;
+            transition: box-shadow 0.3s;
+        }
+
+        .inspiration-text textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px #ff512f;
+        }
+
+        .text-glow {
+            box-shadow: 0 0 20px #ff512f !important;
+        }
+
+        /* 收藏列表 */
+        .saved-inspirations {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .saved-inspirations h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .inspiration-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
+
+        .inspiration-item.fade-out {
+            opacity: 0;
+        }
+
+        .inspiration-item.fade-in {
+            opacity: 0;
+        }
+
+        .inspiration-item.fade-in.show {
+            opacity: 1;
+        }
+
+        .inspiration-item button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            border: none;
+            padding: 5px 10px;
+            color: #fff;
+            font-size: 0.9em;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .inspiration-item button:hover {
+            background: #c82333;
+        }
+
+        /* 照片展示区域 */
+        .photo-gallery {
+            margin: 20px 0;
+        }
+
+        .photo-gallery h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #photo-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #photo-container img {
+            margin: 5px;
+            width: 200px;
+            height: auto;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        #photo-container img:hover {
+            transform: scale(1.05);
+        }
+
+        /* 加载指示器样式 */
+        #photo-container p {
+            color: #fff;
+            text-align: center;
+            font-size: 1.2em;
+            width: 100%;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .generate-btn {
+                font-size: 1.2em;
+            }
+            .inspiration-text textarea {
+                width: 100%;
+            }
+            .weather-info, .hourly-forecast, .daily-forecast {
+                flex-direction: column;
+                align-items: center;
+            }
+            .weather-card, .hourly-card, .daily-card {
+                flex: 1 1 100%;
+            }
+            .sun-content {
+                flex-direction: column;
+            }
+            #sun-map {
+                margin-left: 0;
+                margin-top: 20px;
+                height: 200px;
+            }
+            #map {
+                height: 200px;
+            }
+        }
+    </style>
+    <!-- 引入Leaflet地图CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+
+<div class="container">
+    <h1>摄影师灵感工具</h1>
+
+    <!-- 地点显示 -->
+    <div id="location-name">地点：未知</div>
+
+    <!-- 地点输入和按钮 -->
+    <div class="location-controls">
+        <input type="text" id="location-input" placeholder="输入地点名称">
+        <button id="search-location-btn" class="btn btn-blue">搜索地点</button>
+        <button id="current-location-btn" class="btn btn-green">回到当前位置</button>
+    </div>
+
+    <!-- 地图容器 -->
+    <div id="map"></div>
+
+    <!-- 天气信息模块 -->
+    <div class="weather-info">
+        <div class="weather-card" id="current-weather">
+            <div class="weather-icon" id="weather-icon">☀️</div>
+            <h2 id="weather-description">晴天</h2>
+            <div class="temp" id="temperature">25℃</div>
+            <div class="details" id="weather-details">
+                风速：5 m/s<br>
+                湿度：60%<br>
+                云量：20%
+            </div>
+        </div>
+        <div class="weather-card" id="sun-times">
+            <h2>日出日落</h2>
+            <div class="sun-content">
+                <div class="details" id="sunrise-sunset">
+                    日出时间：6:00 AM<br>
+                    日落时间：6:00 PM<br>
+                    黄金时段：5:30 AM - 6:30 AM<br>
+                    蓝调时段：6:30 PM - 7:00 PM
+                </div>
+                <div id="sun-map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 小时天气预报 -->
+    <div class="hourly-forecast">
+        <h2>小时天气预报</h2>
+        <div class="hourly-cards" id="hourly-forecast">
+            <!-- 动态生成的小时预报卡片 -->
+        </div>
+    </div>
+
+    <!-- 未来7天天气预报 -->
+    <div class="daily-forecast">
+        <h2>未来7天天气预报</h2>
+        <div class="daily-cards" id="daily-forecast">
+            <!-- 动态生成的每日预报卡片 -->
+        </div>
+    </div>
+
+    <!-- 灵感生成模块 -->
+    <div class="inspiration">
+        <div class="category-select">
+            <select id="category-select">
+                <option value="all">不限分类</option>
+                <option value="人文">人文</option>
+                <option value="自然">自然</option>
+                <option value="抽象">抽象</option>
+                <option value="街头">街头</option>
+            </select>
+        </div>
+        <button class="generate-btn" id="generate-btn">
+            寻找灵感
+            <div class="dice" id="dice">🎲</div>
+        </button>
+        <div class="inspiration-text" id="inspiration-text">
+            <textarea id="inspiration-input" placeholder="点击'寻找灵感'按钮，获取新的灵感..."></textarea>
+        </div>
+        <button class="btn btn-green" id="save-btn">收藏灵感</button>
+    </div>
+
+    <!-- 收藏的灵感列表 -->
+    <div class="saved-inspirations" id="saved-inspirations">
+        <h3>已收藏的灵感</h3>
+        <!-- 动态生成的收藏项将显示在这里 -->
+    </div>
+
+    <!-- 照片展示区域 -->
+    <div class="photo-gallery">
+        <h2>目的地照片</h2>
+        <div id="photo-container">
+            <!-- 动态加载的照片 -->
+        </div>
+    </div>
+</div>
+
+<!-- 引入Leaflet地图JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    /* ========== 全局变量 ========== */
+
+    const unsplashAccessKey = 'zXoGlnFIT1ybv0dYJJqkwo0zwm4FMtJ6ApsIHnFGEwg'; // 请替换为您的 Unsplash API Access Key
+
+    // 定义灵感词汇数据
+    const inspirationsData = {
+        "人文": {
+            subjects: ['行人', '老人', '孩子', '情侣', '街头艺人', '工人', '商人', '游客', '学生', '老师', '艺术家', '舞者', '音乐家', '运动员', '摄影师', '司机', '医生', '护士', '服务员', '厨师'],
+            actions: ['行走', '凝视', '等待', '交谈', '微笑', '跳舞', '阅读', '工作', '休息', '购物', '唱歌', '表演', '旅行', '拍照', '绘画', '冥想', '锻炼', '奔跑', '玩耍', '聚会'],
+            scenes: ['街道', '公园', '咖啡馆', '地铁站', '广场', '市场', '校园', '车站', '机场', '码头', '教堂', '博物馆', '剧院', '餐厅', '酒店', '商场', '海滩', '山顶', '游乐园', '图书馆'],
+            descriptors: ['阳光下', '雨中', '黄昏时', '清晨', '夜晚', '霓虹灯下', '倒影中', '剪影', '背光', '人群中', '独自', '背影', '笑容', '侧脸', '背包', '牵手', '亲吻', '拥抱', '奔跑', '跳跃'],
+        },
+        "自然": {
+            subjects: ['树木', '花朵', '山峰', '河流', '湖泊', '海洋', '天空', '云朵', '动物', '鸟类', '瀑布', '沙漠', '草原', '冰川', '岩石', '星空', '日出', '日落', '彩虹', '月亮'],
+            actions: ['摇曳', '绽放', '耸立', '流淌', '静止', '波动', '飘动', '飞翔', '栖息', '觅食', '奔跑', '跳跃', '睡觉', '捕猎', '爬行', '鸣叫', '游泳', '躲藏', '打斗', '合作'],
+            scenes: ['森林', '草原', '沙漠', '海滩', '山谷', '瀑布', '洞穴', '沼泽', '峡谷', '冰川', '湖畔', '河边', '山顶', '海面', '星空下', '云层中', '雪地', '火山', '岩石', '悬崖'],
+            descriptors: ['日出时', '日落时', '星空下', '雾中', '风中', '雨后', '雪中', '彩虹下', '晨光中', '暮色里', '倒影中', '夜晚', '清晨', '黄昏', '晴天', '阴天', '暴风雨', '晴朗', '多云', '寒冷'],
+        },
+        "抽象": {
+            subjects: ['影子', '光线', '色彩', '纹理', '形状', '反射', '倒影', '线条', '对称', '角度', '剪影', '模糊', '焦点', '透视', '空间', '光影', '明暗', '质感', '构图', '负空间'],
+            actions: ['交织', '交错', '重叠', '延伸', '聚焦', '散射', '扭曲', '旋转', '反转', '重复', '排列', '堆叠', '叠加', '折射', '反射', '变形', '融合', '分离', '对比', '渐变'],
+            scenes: ['墙面', '玻璃', '水面', '金属', '石头', '建筑', '天空', '地面', '路面', '纹理', '图案', '细节', '纹路', '结构', '材质', '光影', '颜色', '形状', '线条', '曲线'],
+            descriptors: ['近距离', '特写', '高角度', '低角度', '俯视', '仰视', '局部', '整体', '对比', '和谐', '冷色调', '暖色调', '黑白', '彩色', '柔和', '强烈', '简洁', '复杂', '动态', '静态'],
+        },
+        "街头": {
+            subjects: ['行人', '车辆', '路牌', '建筑物', '橱窗', '涂鸦', '街头艺人', '宠物', '店铺', '公交车', '地铁', '自行车', '摩托车', '商贩', '顾客', '快递员', '警察', '消防员', '垃圾桶', '电话亭'],
+            actions: ['行走', '停留', '交谈', '等待', '表演', '购物', '工作', '奔跑', '休息', '观察', '拍照', '唱歌', '弹奏', '绘画', '维修', '清洁', '巡逻', '送货', '收集', '交易'],
+            scenes: ['街角', '巷子', '广场', '天桥', '地铁站', '公交站', '商场', '市场', '公园', '咖啡馆', '餐厅', '夜市', '步行街', '码头', '桥上', '隧道', '车站', '停车场', '居民区', '高楼'],
+            descriptors: ['夜晚', '清晨', '黄昏', '雨中', '雪中', '雾中', '阳光下', '阴天', '霓虹灯下', '人群中', '繁忙', '宁静', '喧闹', '孤独', '欢乐', '匆忙', '悠闲', '热闹', '安静', '灯光'],
+        }
+    };
+
+    // 收藏的灵感列表
+    let savedInspirations = [];
+
+    // 位置变量
+    let lat, lon;
+
+    // 小时天气数据
+    let hourlyData = {};
+
+    // 日出日落时间
+    let sunriseTime, sunsetTime;
+
+    // 当前时间段
+    let timePeriod = 'day'; // 'day', 'night', 'golden', 'blue'
+
+    // ========== 获取DOM元素 ==========
+
+    // 时间和天气相关
+    const weatherIcon = document.getElementById('weather-icon');
+    const weatherDescription = document.getElementById('weather-description');
+    const temperature = document.getElementById('temperature');
+    const weatherDetails = document.getElementById('weather-details');
+    const sunriseSunset = document.getElementById('sunrise-sunset');
+
+    // 地点显示
+    const locationNameElem = document.getElementById('location-name');
+
+    // 小时天气预报
+    const hourlyForecastDiv = document.getElementById('hourly-forecast');
+
+    // 未来天气预报
+    const dailyForecastDiv = document.getElementById('daily-forecast');
+
+    // 灵感生成相关
+    const generateBtn = document.getElementById('generate-btn');
+    const inspirationText = document.getElementById('inspiration-text');
+    const saveBtn = document.getElementById('save-btn');
+    const savedInspirationsDiv = document.getElementById('saved-inspirations');
+    const categorySelect = document.getElementById('category-select');
+    const dice = document.getElementById('dice');
+
+    // 地图相关
+    let map;
+    let marker;
+
+    // ========== 初始化 ==========
+
+    window.onload = function() {
+        loadSavedInspirations(); // 加载已保存的灵感
+        adjustWeatherCardBackground('晴天'); // 设置默认背景为白天背景
+        initLocation(); // 初始化地理位置
+    };
+
+    // ========== 地理位置相关函数 ==========
+
+    // 初始化地理位置
+    function initLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+                updateAllData();
+            }, error => {
+                alert('无法获取您的位置信息，请确保已开启定位权限。');
+                lat = 0;
+                lon = 0;
+                updateAllData();
+            });
+        } else {
+            alert('您的浏览器不支持地理定位功能。');
+            lat = 0;
+            lon = 0;
+            updateAllData();
+        }
+    }
+
+    // 更新所有数据
+    function updateAllData() {
+        getLocationName(lat, lon);
+        getWeatherData(lat, lon);
+        getSunTimes(lat, lon);
+        if (map) {
+            map.setView([lat, lon], 13);
+            marker.setLatLng([lat, lon]);
+        } else {
+            initMap();
+        }
+    }
+
+    // 获取地点名称
+    function getLocationName(lat, lon) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+            .then(response => response.json())
+            .then(data => {
+                const locationName = data.address.city || data.address.town || data.address.village || data.address.country;
+                locationNameElem.innerText = `地点：${locationName}`;
+                loadLocationPhotos(locationName); // 加载位置照片
+            })
+            .catch(error => {
+                console.error('获取地点名称失败：', error);
+            });
+    }
+
+    // ========== 地图相关函数 ==========
+
+    // 初始化地图
+    function initMap() {
+        map = L.map('map').setView([lat, lon], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 添加可拖动的 Marker（蓝点）
+        marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+
+        // 监听 Marker 拖动结束事件
+        marker.on('dragend', function(e) {
+            let position = e.target.getLatLng();
+            lat = position.lat;
+            lon = position.lng;
+            updateAllData();
+        });
+
+        // 监听地图点击事件
+        map.on('click', function(e) {
+            lat = e.latlng.lat;
+            lon = e.latlng.lng;
+            marker.setLatLng(e.latlng);
+            updateAllData();
+        });
+    }
+
+    // 地点搜索功能
+    document.getElementById('search-location-btn').addEventListener('click', function() {
+        let locationName = document.getElementById('location-input').value;
+        if (locationName) {
+            // 使用地理编码 API 获取位置
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        lat = parseFloat(data[0].lat);
+                        lon = parseFloat(data[0].lon);
+                        map.setView([lat, lon], 13);
+                        marker.setLatLng([lat, lon]);
+                        updateAllData();
+                    } else {
+                        alert('未找到该地点，请重新输入。');
+                    }
+                })
+                .catch(error => {
+                    console.error('地理编码失败：', error);
+                });
+        }
+    });
+
+    // 回到当前位置功能
+    document.getElementById('current-location-btn').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                lat = position.coords.latitude;
+                lon = position.coords.longitude;
+                map.setView([lat, lon], 13);
+                marker.setLatLng([lat, lon]);
+                updateAllData();
+            }, error => {
+                alert('无法获取您的位置信息。');
+            });
+        } else {
+            alert('您的浏览器不支持地理定位功能。');
+        }
+    });
+
+    // ========== 天气相关函数 ==========
+
+    // 获取天气数据
+    function getWeatherData(lat, lon) {
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,cloudcover,relativehumidity_2m,windspeed_10m,weathercode&daily=temperature_2m_max,temperature_2m_min,weathercode,sunrise,sunset,cloudcover_mean&timezone=auto`)
+            .then(response => response.json())
+            .then(data => {
+                const weather = data.current_weather;
+                const temp = weather.temperature;
+                const windSpeed = weather.windspeed;
+                const weatherCode = weather.weathercode;
+                const humidity = data.hourly.relativehumidity_2m[0];
+                const cloudCover = data.hourly.cloudcover[0];
+
+                // 更新当前天气
+                updateWeatherUI(temp, windSpeed, humidity, cloudCover, weatherCode);
+
+                // 保存小时数据
+                hourlyData = data.hourly;
+
+                // 更新小时天气预报
+                updateHourlyForecast(hourlyData, new Date()); // 传入当前日期
+
+                // 更新每日天气预报
+                updateDailyForecast(data.daily);
+            })
+            .catch(error => {
+                console.error('获取天气数据失败：', error);
+            });
+    }
+
+    // 更新天气信息UI
+    function updateWeatherUI(temp, windSpeed, humidity, cloudCover, weatherCode) {
+        temperature.innerText = `${temp}℃`;
+        weatherDetails.innerHTML = `风速：${windSpeed} m/s<br>湿度：${humidity}%<br>云量：${cloudCover}%`;
+
+        // 根据天气代码更新图标和描述
+        let { icon, description } = getWeatherIconAndDescription(weatherCode);
+        weatherIcon.innerText = icon;
+        weatherDescription.innerText = description;
+
+        // 根据时间段调整天气模块背景颜色
+        adjustWeatherCardBackground(description);
+    }
+
+    // 获取天气图标和描述
+    function getWeatherIconAndDescription(weatherCode) {
+        let icon = '☀️';
+        let description = '晴天';
+
+        if (weatherCode === 0) {
+            icon = '☀️';
+            description = '晴天';
+        } else if (weatherCode >= 1 && weatherCode <= 3) {
+            icon = '🌤️';
+            description = '多云';
+        } else if (weatherCode >= 45 && weatherCode <= 48) {
+            icon = '🌫️';
+            description = '有雾';
+        } else if (weatherCode >= 51 && weatherCode <= 67) {
+            icon = '🌧️';
+            description = '小雨';
+        } else if (weatherCode >= 71 && weatherCode <= 77) {
+            icon = '❄️';
+            description = '下雪';
+        } else if (weatherCode >= 80 && weatherCode <= 86) {
+            icon = '🌦️';
+            description = '阵雨';
+        } else if (weatherCode >= 95 && weatherCode <= 99) {
+            icon = '⛈️';
+            description = '雷雨';
+        }
+
+        return { icon, description };
+    }
+
+    // 调整天气模块背景颜色
+    function adjustWeatherCardBackground(weatherDescription) {
+        // 保留背景动画属性
+        document.body.style.backgroundSize = '400% 400%';
+        document.body.style.animation = 'gradientBG 15s ease infinite';
+
+        if (timePeriod === 'golden') {
+            document.body.style.background = 'linear-gradient(-45deg, #FFD194, #D1913C, #FFD194, #D1913C)';
+        } else if (timePeriod === 'blue') {
+            document.body.style.background = 'linear-gradient(-45deg, #141E30, #243B55, #141E30, #243B55)';
+        } else if (timePeriod === 'night') {
+            document.body.style.background = 'linear-gradient(-45deg, #0f2027, #2c5364, #0f2027, #2c5364)';
+        } else {
+            if (weatherDescription === '晴天') {
+                document.body.style.background = 'linear-gradient(-45deg, #a1c4fd, #c2e9fb, #a1c4fd, #c2e9fb)';
+            } else if (weatherDescription === '多云') {
+                document.body.style.background = 'linear-gradient(-45deg, #bdc3c7, #2c3e50, #bdc3c7, #2c3e50)';
+            } else if (weatherDescription.includes('雨')) {
+                document.body.style.background = 'linear-gradient(-45deg, #667db6, #0082c8, #667db6, #0082c8)';
+            } else {
+                document.body.style.background = 'linear-gradient(-45deg, #a1c4fd, #c2e9fb, #a1c4fd, #c2e9fb)';
+            }
+        }
+    }
+
+    // 更新小时天气预报
+    function updateHourlyForecast(hourly, date = new Date()) {
+        hourlyForecastDiv.innerHTML = '';
+        const dateStr = `${date.getFullYear()}-${formatNumber(date.getMonth() + 1)}-${formatNumber(date.getDate())}`;
+        for (let i = 0; i < hourly.time.length; i++) {
+            if (hourly.time[i].startsWith(dateStr)) {
+                const card = document.createElement('div');
+                card.className = 'hourly-card';
+                const time = new Date(hourly.time[i]);
+                const temp = hourly.temperature_2m[i];
+                const code = hourly.weathercode[i];
+                const icon = getWeatherIconAndDescription(code).icon;
+                card.innerHTML = `
+                    <h3>${formatNumber(time.getHours())}:00</h3>
+                    <div class="icon">${icon}</div>
+                    <div>${temp}℃</div>
+                `;
+                hourlyForecastDiv.appendChild(card);
+            }
+        }
+    }
+
+    // 更新每日天气预报
+    function updateDailyForecast(daily) {
+        dailyForecastDiv.innerHTML = '';
+        for (let i = 0; i < 7; i++) {
+            const card = document.createElement('div');
+            card.className = 'daily-card';
+            const date = new Date(daily.time[i]);
+            const tempMax = daily.temperature_2m_max[i];
+            const tempMin = daily.temperature_2m_min[i];
+            const code = daily.weathercode[i];
+            const sunrise = new Date(daily.sunrise[i]);
+            const sunset = new Date(daily.sunset[i]);
+            const cloudCover = daily.cloudcover_mean[i];
+            const icon = getWeatherIconAndDescription(code).icon;
+            card.innerHTML = `
+                <h3>${date.getMonth()+1}/${date.getDate()}</h3>
+                <div class="icon">${icon}</div>
+                <div>${tempMin}℃ - ${tempMax}℃</div>
+                <div>云量：${cloudCover}%</div>
+                <div>日出：${formatNumber(sunrise.getHours())}:${formatNumber(sunrise.getMinutes())}</div>
+                <div>日落：${formatNumber(sunset.getHours())}:${formatNumber(sunset.getMinutes())}</div>
+            `;
+            card.addEventListener('click', () => {
+                showHourlyForecastForDate(date);
+            });
+            dailyForecastDiv.appendChild(card);
+        }
+    }
+
+    // 显示指定日期的小时天气预报
+    function showHourlyForecastForDate(date) {
+        updateHourlyForecast(hourlyData, date);
+    }
+
+    // 格式化数字，确保两位数
+    function formatNumber(num) {
+        return num < 10 ? '0' + num : num;
+    }
+
+    // ========== 日出日落相关函数 ==========
+
+    // 获取日出日落时间
+    function getSunTimes(lat, lon) {
+        fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&formatted=0`)
+            .then(response => response.json())
+            .then(data => {
+                const sunrise = new Date(data.results.sunrise);
+                const sunset = new Date(data.results.sunset);
+                sunriseTime = sunrise.getHours();
+                sunsetTime = sunset.getHours();
+
+                updateSunTimesUI(sunrise, sunset);
+                determineTimePeriod();
+                adjustWeatherCardBackground(weatherDescription.innerText);
+            })
+            .catch(error => {
+                console.error('获取日出日落时间失败：', error);
+            });
+    }
+
+    // 更新日出日落信息UI
+    function updateSunTimesUI(sunrise, sunset) {
+        const sunriseStr = formatTime(sunrise);
+        const sunsetStr = formatTime(sunset);
+        const goldenHourStart = new Date(sunset.getTime() - 60 * 60000);
+        const goldenHourEnd = sunset;
+        const blueHourStart = sunset;
+        const blueHourEnd = new Date(sunset.getTime() + 30 * 60000);
+
+        sunriseSunset.innerHTML = `日出时间：${sunriseStr}<br>日落时间：${sunsetStr}<br>黄金时段：${formatTime(goldenHourStart)} - ${formatTime(goldenHourEnd)}<br>蓝调时段：${formatTime(blueHourStart)} - ${formatTime(blueHourEnd)}`;
+    }
+
+    // 格式化时间
+    function formatTime(date) {
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // 0点显示为12
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        return `${hours}:${minutes} ${ampm}`;
+    }
+
+    // 确定当前时间段
+    function determineTimePeriod() {
+        const now = new Date();
+        const currentTime = now.getHours() + now.getMinutes() / 60;
+        const sunriseTimeDecimal = sunriseTime;
+        const sunsetTimeDecimal = sunsetTime;
+        const goldenHourStart = sunsetTimeDecimal - 1;
+        const goldenHourEnd = sunsetTimeDecimal;
+        const blueHourStart = sunsetTimeDecimal;
+        const blueHourEnd = sunsetTimeDecimal + 0.5;
+
+        if (currentTime >= sunriseTimeDecimal && currentTime < sunsetTimeDecimal) {
+            timePeriod = 'day';
+        } else {
+            timePeriod = 'night';
+        }
+
+        if (currentTime >= goldenHourStart && currentTime < goldenHourEnd) {
+            timePeriod = 'golden';
+        }
+
+        if (currentTime >= blueHourStart && currentTime < blueHourEnd) {
+            timePeriod = 'blue';
+        }
+    }
+
+    // ========== 灵感生成相关函数 ==========
+
+    function generateInspiration() {
+        const category = categorySelect.value;
+        let data;
+
+        if (category === 'all') {
+            // 合并所有分类的词汇库
+            data = {
+                subjects: [],
+                actions: [],
+                scenes: [],
+                descriptors: []
+            };
+
+            for (let key in inspirationsData) {
+                data.subjects = data.subjects.concat(inspirationsData[key].subjects);
+                data.actions = data.actions.concat(inspirationsData[key].actions);
+                data.scenes = data.scenes.concat(inspirationsData[key].scenes);
+                data.descriptors = data.descriptors.concat(inspirationsData[key].descriptors);
+            }
+        } else {
+            data = inspirationsData[category];
+        }
+
+        const subject = data.subjects[Math.floor(Math.random() * data.subjects.length)];
+        const action = data.actions[Math.floor(Math.random() * data.actions.length)];
+        const scene = data.scenes[Math.floor(Math.random() * data.scenes.length)];
+        const descriptor = data.descriptors[Math.floor(Math.random() * data.descriptors.length)];
+
+        return `拍摄${descriptor}${scene}${action}的${subject}`;
+    }
+
+    generateBtn.addEventListener('click', () => {
+        const inspiration = generateInspiration();
+
+        // 显示筛子动画
+        dice.style.display = 'block';
+        dice.style.animation = 'rotateDice 1s forwards';
+
+        setTimeout(() => {
+            dice.style.display = 'none';
+            const inspirationInput = document.getElementById('inspiration-input');
+            inspirationInput.value = inspiration;
+            inspirationInput.classList.add('text-glow');
+        }, 1000);
+    });
+
+    // 收藏灵感
+    saveBtn.addEventListener('click', () => {
+        const inspirationInput = document.getElementById('inspiration-input');
+        const inspiration = inspirationInput.value.trim();
+        if (inspiration) {
+            savedInspirations.push(inspiration);
+            updateSavedInspirations();
+            alert('灵感已收藏！');
+        } else {
+            alert('灵感内容不能为空！');
+        }
+    });
+
+    // 更新收藏的灵感列表
+    function updateSavedInspirations() {
+        savedInspirationsDiv.innerHTML = '<h3>已收藏的灵感</h3>';
+        savedInspirations.forEach((insp, index) => {
+            const div = document.createElement('div');
+            div.className = 'inspiration-item fade-in';
+            div.innerHTML = `${insp}<button onclick="deleteInspiration(${index})">删除</button>`;
+            savedInspirationsDiv.appendChild(div);
+
+            // 添加渐显效果
+            setTimeout(() => {
+                div.classList.add('show');
+            }, 0);
+        });
+    }
+
+    // 删除收藏的灵感
+    function deleteInspiration(index) {
+        const inspirationItems = document.querySelectorAll('.inspiration-item');
+        inspirationItems[index].classList.add('fade-out');
+        setTimeout(() => {
+            savedInspirations.splice(index, 1);
+            updateSavedInspirations();
+        }, 500);
+    }
+
+    // 初始化本地存储的收藏
+    function loadSavedInspirations() {
+        const saved = localStorage.getItem('savedInspirations');
+        if (saved) {
+            savedInspirations = JSON.parse(saved);
+            updateSavedInspirations();
+        }
+    }
+
+    // 保存收藏到本地存储
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('savedInspirations', JSON.stringify(savedInspirations));
+    });
+
+    // ========== 照片搜索相关函数 ==========
+
+    function loadLocationPhotos(locationName) {
+        const photoContainer = document.getElementById('photo-container');
+        photoContainer.innerHTML = '<p>正在加载照片...</p>'; // 显示加载指示器
+
+        fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(locationName)}&client_id=${unsplashAccessKey}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    displayPhotos(data.results);
+                } else {
+                    photoContainer.innerHTML = '<p>未找到相关照片。</p>';
+                }
+            })
+            .catch(error => {
+                console.error('获取照片失败：', error);
+                photoContainer.innerHTML = '<p>获取照片失败，请稍后重试。</p>';
+            });
+    }
+
+    function displayPhotos(photos) {
+        const photoContainer = document.getElementById('photo-container');
+        photoContainer.innerHTML = '';
+
+        // 创建 IntersectionObserver 实例
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    observer.unobserve(img);
+                }
+            });
+        });
+
+        photos.forEach(photo => {
+            const img = document.createElement('img');
+            img.dataset.src = photo.urls.small;
+            img.alt = photo.alt_description || '目的地照片';
+            img.title = photo.description || photo.alt_description || '';
+            photoContainer.appendChild(img);
+
+            // 观察图片元素
+            observer.observe(img);
+        });
+    }
+</script>
+</body>
+</html>
